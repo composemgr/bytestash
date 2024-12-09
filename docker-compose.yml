@@ -1,0 +1,24 @@
+name: bytestash
+services:
+  bytestash:
+    image: ghcr.io/jordan-dalby/bytestash:latest
+    container_name: bytestash
+    hostname: bytestash
+    restart: always
+    volumes:
+      - /var/lib/srv/$USER/docker/jordan-dalby/bytestash/latest/rootfs/data/bytestash:/data/snippets
+    ports:
+      - 172.17.0.1:59073:5000
+    healthcheck:
+      test: ['CMD-SHELL', 'nc -z 127.0.0.1 5000 || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+    networks:
+      - bytestash
+
+networks:
+  bytestash:
+    name: bytestash
+    external: false
