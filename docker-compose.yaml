@@ -8,9 +8,9 @@ x-logging: &default-logging
   driver: json-file
 
 services:
-  bytestash:
+  app:
     image: ghcr.io/jordan-dalby/bytestash:latest
-    container_name: bytestash
+    container_name: bytestash-app
     hostname: ${BASE_HOST_NAME:-$HOSTNAME}
     restart: always
     pull_policy: always
@@ -20,7 +20,7 @@ services:
     ports:
       - '172.17.0.1:59073:5000'
     volumes:
-      - '/var/lib/srv/$USER/docker/jordan-dalby/bytestash/latest/rootfs/data/bytestash:/data/snippets'
+      - '/var/lib/srv/$USER/bytestash/rootfs/data/bytestash:/data/snippets'
     healthcheck:
       test: ['CMD-SHELL', 'nc -z 127.0.0.1 5000 || exit 1']
       interval: 10s
