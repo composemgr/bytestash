@@ -1,0 +1,36 @@
+# nginx proxy address - http://172.17.0.1:59073
+
+name: bytestash
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: ghcr.io/jordan-dalby/bytestash:latest
+    container_name: bytestash-app
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+    ports:
+      - '172.17.0.1:59073:5000'
+    volumes:
+      - './rootfs/data/bytestash:/data/snippets'
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:5000 || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+    networks:
+      - bytestash
+
+networks:
+  bytestash:
+    name: bytestash
+    external: false
