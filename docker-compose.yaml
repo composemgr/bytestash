@@ -20,7 +20,7 @@ services:
     ports:
       - '172.17.0.1:59073:5000'
     volumes:
-      - './rootfs/data/bytestash:/data/snippets'
+      - './volumes/data/bytestash:/data/snippets'
     healthcheck:
       test: ['CMD-SHELL', 'curl -f http://localhost:5000 || exit 1']
       interval: 10s
