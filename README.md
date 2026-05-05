@@ -45,7 +45,7 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/data/bytestash` - Data storage
+- `./volumes/data/bytestash` - Data storage
 
 ## 🔍 Logging
 
