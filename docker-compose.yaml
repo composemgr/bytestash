@@ -21,6 +21,8 @@ services:
       ALLOW_REGISTRATION: ${BYTESTASH_ALLOW_REGISTRATION:-true}
       TOKEN_EXPIRY_HOURS: ${BYTESTASH_TOKEN_EXPIRY_HOURS:-24}
       DISABLE_ACCOUNTS: ${BYTESTASH_DISABLE_ACCOUNTS:-false}
+      CONTAINER_NAME: bytestash-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     ports:
       - '172.17.0.1:59073:5000'
     volumes:
@@ -33,8 +35,30 @@ services:
       start_period: 90s
     networks:
       - bytestash
+      - proxy
+      - cloudflare
+    labels:
+      - 'traefik.enable=true'
+      - 'cloudflare.enable=true'
+      - 'traefik.docker.network=proxy'
+      - 'cloudflare.service=http://bytestash-app:5000'
+      - 'cloudflare.hostname=bytestash.${CLOUDFLARE_ZONE_NAME:-}'
+      - 'traefik.http.routers.bytestash-app.entrypoints=http'
+      - 'traefik.http.routers.bytestash-app-secure.tls=true'
+      - 'traefik.http.routers.bytestash-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.middlewares.bytestash-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.bytestash-app.middlewares=bytestash-app-https-redirect'
+      - 'traefik.http.routers.bytestash-app-secure.entrypoints=https'
+      - 'traefik.http.routers.bytestash-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.routers.bytestash-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.bytestash-app-secure.service=bytestash-app'
+      - 'traefik.http.services.bytestash-app.loadbalancer.server.port=5000'
 
 networks:
   bytestash:
     name: bytestash
     external: false
+  proxy:
+    external: true
+  cloudflare:
+    external: true
