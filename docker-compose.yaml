@@ -17,6 +17,10 @@ services:
     logging: *default-logging
     environment:
       TZ: ${TZ:-America/New_York}
+      JWT_SECRET: ${APP_SECRET_KEY:-changeme_secret_key_min_32_chars}
+      ALLOW_REGISTRATION: ${BYTESTASH_ALLOW_REGISTRATION:-true}
+      TOKEN_EXPIRY_HOURS: ${BYTESTASH_TOKEN_EXPIRY_HOURS:-24}
+      DISABLE_ACCOUNTS: ${BYTESTASH_DISABLE_ACCOUNTS:-false}
     ports:
       - '172.17.0.1:59073:5000'
     volumes:
