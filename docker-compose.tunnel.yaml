@@ -1,0 +1,47 @@
+name: bytestash
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: ghcr.io/jordan-dalby/bytestash:latest
+    container_name: bytestash-app
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: bytestash-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+      JWT_SECRET: ${APP_SECRET_KEY:-changeme_secret_key_min_32_chars}
+      ALLOW_NEW_ACCOUNTS: ${BYTESTASH_ALLOW_REGISTRATION:-true}
+      DISABLE_INTERNAL_ACCOUNTS: false
+      TOKEN_EXPIRY: ${BYTESTASH_TOKEN_EXPIRY:-24h}
+      DISABLE_ACCOUNTS: ${BYTESTASH_DISABLE_ACCOUNTS:-false}
+      ALLOW_PASSWORD_CHANGES: true
+    volumes:
+      - './volumes/data/bytestash:/data/snippets'
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:5000 || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+    labels:
+      - 'cloudflare.enable=true'
+      - 'cloudflare.service=http://bytestash-app:5000'
+      - 'cloudflare.hostname=${BASE_HOST_NAME:-$HOSTNAME}'
+    networks:
+      - bytestash
+      - cloudflare
+
+networks:
+  bytestash:
+    name: bytestash
+    external: false
+  cloudflare:
+    external: true
